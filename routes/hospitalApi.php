@@ -39,6 +39,7 @@ Route::prefix('/hospital')
         Route::prefix('/staff')->group(function () {
             Route::post('/create-registration-service', [StaffController::class, 'createRegistrationService']);
             Route::get('/get-all-regis-by-staff', [StaffController::class, 'getAllRegis']);
+            Route::get('/refuseRegistration/{id}', [StaffController::class, 'refuseRegistration']);
         });
 
         Route::prefix('/tester')->group(function () {

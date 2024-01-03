@@ -87,5 +87,21 @@ class StaffController extends Controller
             return $this->respondWithError($e->getMessage(), 500);
         }
     }
+    public function refuseRegistration($id)
+    {
+        $user = Auth::user();
+        $registration = Registration::query()->find($id);
+        if(isset($registration->staff_id) && $registration->staff_id === $user->id){
+            $registration->staff_id = null;
+            $registration->status = 4;
+            $registration->save();
+
+            return $this->respond([
+                'success' => true,
+            ], 200);
+        }
+
+        $this->respondWithError('Can not refuse registration!', 401);
+    }
 
 }

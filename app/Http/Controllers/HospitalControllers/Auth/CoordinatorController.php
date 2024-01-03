@@ -81,7 +81,7 @@ class CoordinatorController extends Controller
     public function listRegisNew()
     {
         try {
-            return Registration::query()->where('status', 0)->get();
+            return Registration::query()->where('status', 0)->orWhere('status', 4)->get();
         } catch (\Exception $e) {
             Log::error('Function listRegisNew: ' . $e->getMessage());
             return $this->respondWithError($e->getMessage(), 500);
