@@ -85,10 +85,15 @@ class AuthControllers extends Controller
     }
     public function getUser()
     {
-        return $this->respond([
-            'success' => true,
-            'user' => Auth::user(),
-        ], 200);
+        $user = Auth::user();
+        if($user){
+            return $this->respond([
+                'success' => true,
+                'user' => Auth::user(),
+            ], 200);
+        } else {
+            return $this->respondWithError('Not Auth', 404);
+        }
     }
     public function patientRegistration (Request $request)
     {
