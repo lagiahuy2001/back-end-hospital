@@ -73,10 +73,12 @@ class AdminController extends Controller
             $data = $request->all();
 
             $data['additional_information'] = json_encode($data['additional_information']);
-
-            Service::where('id', $data['id'])->update($data);
-
-            return true;
+            $service = Service::query()->find($data['id']);
+            $service->update($data);
+            return $this->respond([
+                'success' => true,
+                'service' => $service,
+            ], 200);
 
         } catch (\Exception $e) {
             Log::error('Function updateService: ' . $e->getMessage());
