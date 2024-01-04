@@ -34,8 +34,10 @@ class CoordinatorController extends Controller
         Registration::where('id', $id)->update([
             'refuse' => true
         ]);
-
-        return Registration::query()->find($id);
+        return $this->respond([
+            'success' => true,
+            'registration' => Registration::query()->find($id),
+        ], 200);
     }
     public function updateRegistration(Request $request)
     {
@@ -51,7 +53,10 @@ class CoordinatorController extends Controller
 
             Registration::where('id', $data['id'])->update($data);
 
-            return Registration::query()->find($data['id']);
+            return $this->respond([
+                'success' => true,
+                'registration' => Registration::query()->find($data['id']),
+            ], 200);
 
         } catch (\Exception $e) {
             Log::error('Function updateRegistration: ' . $e->getMessage());
@@ -81,7 +86,10 @@ class CoordinatorController extends Controller
     public function listRegisNew()
     {
         try {
-            return Registration::query()->where('status', 0)->orWhere('status', 4)->orderBy('id', 'desc')->get();
+            return $this->respond([
+                'success' => true,
+                'registration' => Registration::query()->where('status', 0)->orWhere('status', 4)->orderBy('id', 'desc')->get(),
+            ], 200);
         } catch (\Exception $e) {
             Log::error('Function listRegisNew: ' . $e->getMessage());
             return $this->respondWithError($e->getMessage(), 500);
@@ -91,7 +99,10 @@ class CoordinatorController extends Controller
     {
         try {
             $roleStaff = Role::query()->where('role_name', Role::STAFF)->first();
-            return User::query()->where('role_id', $roleStaff->id)->get();
+            return $this->respond([
+                'success' => true,
+                'staff' => User::query()->where('role_id', $roleStaff->id)->orderBy('id', 'desc')->get(),
+            ], 200);
         } catch (\Exception $e) {
             Log::error('Function getAllStaff: ' . $e->getMessage());
             return $this->respondWithError($e->getMessage(), 500);

@@ -32,10 +32,14 @@ class AuthControllers extends Controller
     public function searchService($search)
     {
         try {
-            return Service::query()
-                ->where('id', 'like', "%{$search}%")
-                ->orWhere('service_name', 'like', "%{$search}%")
-                ->get();
+            return $this->respond([
+                'success' => true,
+                'service' => Service::query()
+                    ->where('id', 'like', "%{$search}%")
+                    ->orWhere('service_name', 'like', "%{$search}%")
+                    ->orderBy('id', 'desc')
+                    ->get(),
+            ], 200);
         } catch (\Exception $e) {
             Log::error('Function searchService: ' . $e->getMessage());
             return $this->respondWithError($e->getMessage(), 500);
@@ -44,10 +48,14 @@ class AuthControllers extends Controller
     public function searchRegis($search)
     {
         try {
-            return Registration::query()
-                ->where('id', 'like', "%{$search}%")
-                ->orWhere('user_phone', 'like', "%{$search}%")
-                ->get();
+            return $this->respond([
+                'success' => true,
+                'registration' => Registration::query()
+                    ->where('id', 'like', "%{$search}%")
+                    ->orWhere('user_phone', 'like', "%{$search}%")
+                    ->orderBy('id', 'desc')
+                    ->get(),
+            ], 200);
         } catch (\Exception $e) {
             Log::error('Function searchRegis: ' . $e->getMessage());
             return $this->respondWithError($e->getMessage(), 500);
@@ -56,7 +64,10 @@ class AuthControllers extends Controller
     public function fillRegisByType($type)
     {
         try {
-            return Registration::query()->where('status', $type)->get();
+            return $this->respond([
+                'success' => true,
+                'registration' => Registration::query()->where('status', $type)->orderBy('id', 'desc')->get(),
+            ], 200);
         } catch (\Exception $e) {
             Log::error('Function fillRegisByType: ' . $e->getMessage());
             return $this->respondWithError($e->getMessage(), 500);
@@ -65,7 +76,10 @@ class AuthControllers extends Controller
     public function detailRegistration($id)
     {
         try {
-            return Registration::query()->find($id);
+            return $this->respond([
+                'success' => true,
+                'registration' => Registration::query()->find($id),
+            ], 200);
 
         } catch (\Exception $e) {
             Log::error('Function detailRegistration: ' . $e->getMessage());
@@ -75,7 +89,10 @@ class AuthControllers extends Controller
     public function listRegistration()
     {
         try {
-            return Registration::query()->get();
+            return $this->respond([
+                'success' => true,
+                'registration' => Registration::query()->orderBy('id', 'desc')->get(),
+            ], 200);
 
         } catch (\Exception $e) {
             Log::error('Function listRegistration: ' . $e->getMessage());

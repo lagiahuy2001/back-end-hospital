@@ -18,12 +18,14 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthControllers extends Controller
 {
@@ -56,6 +58,7 @@ class AuthControllers extends Controller
                 ->get();
 
             return $this->respond([
+                'success' => true,
                 'results' => $results,
                 'listFill' => $listFill,
             ], 200);
@@ -75,13 +78,17 @@ class AuthControllers extends Controller
             ->get();
 
         return $this->respond([
+            'success' => true,
             'results' => $results,
             'listFill' => $listFill,
         ], 200);
     }
     public function getUser()
     {
-        return Auth::user();
+        return $this->respond([
+            'success' => true,
+            'user' => Auth::user(),
+        ], 200);
     }
     public function patientRegistration (Request $request)
     {
@@ -106,9 +113,7 @@ class AuthControllers extends Controller
                 'role_id' => $rolePatient->id,
             ]);
 
-            return $this->respond([
-               'success' => true,
-            ], 200);
+            return true;
         } catch (\Exception $e) {
             Log::error('Function patientRegistration: ' . $e->getMessage());
             return $this->respondWithError($e->getMessage(), 500);
@@ -125,7 +130,7 @@ class AuthControllers extends Controller
 
             $credentials = request(['phone', 'password']);
 
-            if (!$token = auth()->attempt($credentials)) {
+            if (!$token = auth()->setTTL(60 * 24 * 365)->attempt($credentials)) {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
 
@@ -140,9 +145,7 @@ class AuthControllers extends Controller
     {
         try {
             auth()->logout();
-            return $this->respond([
-                'success' => true,
-            ], 200);
+            return true;
         } catch (\Exception $e) {
             Log::error('Function logout: ' . $e->getMessage());
             return $this->respondWithError($e->getMessage(), 500);
@@ -156,10 +159,10 @@ class AuthControllers extends Controller
     protected function respondWithToken($token)
     {
         $user = Auth::user();
-        return response()->json([
+        return $this->respond([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60 * 10000,
+            'expires_in' => 60 * 24 * 365,
             'user' => $user,
         ]);
     }

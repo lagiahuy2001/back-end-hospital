@@ -56,8 +56,10 @@ class AdminController extends Controller
                 'value' => $value,
             ];
         }
-
-        return $finalResult;
+        return $this->respond([
+            'success' => true,
+            'finalResult' => $finalResult,
+        ], 200);
     }
     public function updateService(Request $request)
     {
@@ -74,9 +76,7 @@ class AdminController extends Controller
 
             Service::where('id', $data['id'])->update($data);
 
-            return $this->respond([
-                'success' => true,
-            ], 200);
+            return true;
 
         } catch (\Exception $e) {
             Log::error('Function updateService: ' . $e->getMessage());
@@ -97,9 +97,7 @@ class AdminController extends Controller
 
             Service::create($data);
 
-            return $this->respond([
-                'success' => true,
-            ], 200);
+            return true;
 
         } catch (\Exception $e) {
             Log::error('Function createService: ' . $e->getMessage());
@@ -109,15 +107,24 @@ class AdminController extends Controller
     public function searchUser($search)
     {
         $roleAdmin = Role::query()->where('role_name', Role::ADMIN)->first();
-        return User::query()
+        $listUser = User::query()
             ->where('role_id', '!=', $roleAdmin->id)
             ->where('name', 'like', "%{$search}%")
+            ->orderBy('id', 'desc')
             ->get();
+        return $this->respond([
+            'success' => true,
+            'listUser' => $listUser,
+        ], 200);
     }
 
     public function fillUserByType($id)
     {
-        return User::query()->where('role_id', $id)->get();
+        $listUser = User::query()->where('role_id', $id)->orderBy('id', 'desc')->get();
+        return $this->respond([
+            'success' => true,
+            'listUser' => $listUser,
+        ], 200);
     }
     public function createUser(Request $request)
     {
@@ -145,9 +152,7 @@ class AdminController extends Controller
                 'role_id' => $role->id,
             ]);
 
-            return $this->respond([
-                'success' => true,
-            ], 200);
+            return true;
 
         } catch (\Exception $e) {
             Log::error('Function createUser: ' . $e->getMessage());
@@ -165,7 +170,12 @@ class AdminController extends Controller
 
             User::where('id', $data['id'])->update($data);
 
-            return User::query()->find($data['id']);
+            $user = User::query()->find($data['id']);
+
+            return $this->respond([
+                'success' => true,
+                'user' => $user,
+            ], 200);
 
         } catch (\Exception $e) {
             Log::error('Function updateUser: ' . $e->getMessage());
@@ -176,7 +186,7 @@ class AdminController extends Controller
     {
         try {
             $roleAdmin = Role::query()->where('role_name', Role::ADMIN)->first();
-            $listUser = User::query()->where('role_id', '!=', $roleAdmin->id)->get();
+            $listUser = User::query()->where('role_id', '!=', $roleAdmin->id)->orderBy('id', 'desc')->get();
 
             return $this->respond([
                 'success' => true,
@@ -194,7 +204,10 @@ class AdminController extends Controller
         try {
             $service = Service::query()->find($id);
             $service->additional_information = json_decode($service->additional_information);
-            return $service;
+            return $this->respond([
+                'success' => true,
+                'service' => $service,
+            ], 200);
         } catch (\Exception $e) {
             Log::error('Function getServiceDetail: ' . $e->getMessage());
             return $this->respondWithError($e->getMessage(), 500);
@@ -203,7 +216,10 @@ class AdminController extends Controller
     public function getUserDetail($id)
     {
         try {
-            return User::query()->find($id);
+            return $this->respond([
+                'success' => true,
+                'user' => User::query()->find($id),
+            ], 200);
         } catch (\Exception $e) {
             Log::error('Function getUserDetail: ' . $e->getMessage());
             return $this->respondWithError($e->getMessage(), 500);

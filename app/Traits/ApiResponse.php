@@ -20,6 +20,7 @@ trait ApiResponse
      */
     protected function respond(array $data, int $status = ResponseAlias::HTTP_OK, array $headers = []): JsonResponse
     {
+        $data = base64_encode(json_encode($data));
         return response()->json($data, $status, $headers)->header('Content-Type', 'application/json');
     }
 
@@ -32,12 +33,12 @@ trait ApiResponse
      */
     protected function respondWithError(string $message, int $status = ResponseAlias::HTTP_BAD_REQUEST, array $headers = [], array $additionalData = []): JsonResponse
     {
-        return $this->respond([
+        return response()->json([
             'error' => [
                 'error_data' => $additionalData,
                 'message' => $message,
                 'status_code' => $status,
             ],
-        ], $status, $headers);
+        ], $status, $headers)->header('Content-Type', 'application/json');
     }
 }

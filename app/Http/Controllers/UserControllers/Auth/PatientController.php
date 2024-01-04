@@ -41,9 +41,7 @@ class PatientController extends Controller
             $data['status'] = 0;
             Registration::create($data);
 
-            return $this->respond([
-                'success' => true,
-            ], 200);
+            return true;
 
         } catch (\Exception $e) {
             Log::error('Function createRegistration: ' . $e->getMessage());
@@ -56,12 +54,13 @@ class PatientController extends Controller
         try {
             $user = Auth::user();
 
-            $listRegis = Registration::query()
-                ->where('patient_id', $user->id)
-                ->orderBy('id', 'desc')
-                ->get();
-
-            return $listRegis;
+            return $this->respond([
+                'success' => true,
+                'registration' => Registration::query()
+                    ->where('patient_id', $user->id)
+                    ->orderBy('id', 'desc')
+                    ->get(),
+            ], 200);
 
         } catch (\Exception $e) {
             Log::error('Function patientGetListRegistration: ' . $e->getMessage());
@@ -74,11 +73,12 @@ class PatientController extends Controller
         try {
             $user = Auth::user();
 
-            $regis = Registration::query()->where('id', $id)
-                ->where('patient_id', $user->id)
-                ->first();
-
-            return $regis;
+            return $this->respond([
+                'success' => true,
+                'registration' => Registration::query()->where('id', $id)
+                    ->where('patient_id', $user->id)
+                    ->first(),
+            ], 200);
 
         } catch (\Exception $e) {
             Log::error('Function patientGetDetailRegistration: ' . $e->getMessage());

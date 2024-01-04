@@ -30,7 +30,10 @@ class TesterController extends Controller
 
     public function detailRegistrationService($id)
     {
-        return RegistrationService::query()->find($id);
+        return $this->respond([
+            'success' => true,
+            'registration' => RegistrationService::query()->find($id),
+        ], 200);
     }
     public function updateResultRegistrationService(Request $request)
     {
@@ -58,9 +61,7 @@ class TesterController extends Controller
             $regis->status = 3;
             $regis->save();
 
-            return $this->respond([
-                'success' => true
-            ]);
+            return true;
         } catch (\Exception $e) {
             Log::error('Function updateResultRegistrationService: ' . $e->getMessage());
             return $this->respondWithError($e->getMessage(), 500);
@@ -69,6 +70,9 @@ class TesterController extends Controller
 
     public function listRegistrationService()
     {
-        return RegistrationService::query()->where('status', 0)->get();
+        return $this->respond([
+            'success' => true,
+            'registration_service' => RegistrationService::query()->where('status', 0)->orderBy('id', 'desc')->get(),
+        ], 200);
     }
 }

@@ -34,8 +34,10 @@ class StaffController extends Controller
     {
         try {
             $user = Auth::user();
-
-            return Registration::query()->where('staff_id', $user->id)->where('status', 1)->get();
+            return $this->respond([
+                'success' => true,
+                'registration' => Registration::query()->where('staff_id', $user->id)->where('status', 1)->orderBy('id', 'desc')->get(),
+            ], 200);
 
         } catch (\Exception $e) {
             Log::error('Function getAllRegis: ' . $e->getMessage());
@@ -78,9 +80,7 @@ class StaffController extends Controller
 
             $registration->update(['status' => 2, 'total_price' => $price, 'staff_id' => $user->id, 'time_take_test' => Carbon::now()]);
 
-            return $this->respond([
-                'success' => true,
-            ], 200);
+            return true;
 
         } catch (\Exception $e) {
             Log::error('Function createRegistrationService: ' . $e->getMessage());
@@ -96,9 +96,7 @@ class StaffController extends Controller
             $registration->status = 4;
             $registration->save();
 
-            return $this->respond([
-                'success' => true,
-            ], 200);
+            return true;
         }
 
         $this->respondWithError('Can not refuse registration!', 401);
